@@ -1,0 +1,128 @@
+:root {
+    --ColorFondo:      #0A0A0F;
+    --ColorSuperficie: #12121A;
+    --ColorTarjeta:    #1A1A26;
+    --ColorBorde:      #2A2A40;
+    --ColorAcento:     #00FFCC;
+    --ColorAcento2:    #FF3E88;
+    --ColorAcento3:    #FFE600;
+    --ColorTexto:      #E8E8F0;
+    --ColorApagado:    #6060A0;
+    --EfectoBrillo:    0 0 20px rgba(0, 255, 204, 0.4);
+}
+
+* {
+    margin:     0;
+    padding:    0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height:   100%;
+    overflow: hidden;
+}
+
+body {
+    background:  var(--ColorFondo);
+    color:       var(--ColorTexto);
+    font-family: 'Rajdhani', sans-serif;
+}
+
+body::before {
+    content:        '';
+    position:       fixed;
+    inset:          0;
+    background:     repeating-linear-gradient(0deg, transparent, transparent 2px 
+                                            rgba(0, 0, 0, .08) 2px, rgba(0, 0, 0, .08) 4px
+                                             );
+    pointer-events: none;
+    z-index:        1000;
+}
+
+body::after {
+    content:         '';
+    position:        fixed;
+    inset:           0;
+    background-image: 
+                     linear-gradient(rgba(0, 255, 204, .03) 1px, transparent 1px),
+                     linear-gradient(90deg, rgba(0, 255, 204, .03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events:  none;
+    z-index:         0;
+}
+
+/* ------------- Cabecera TopBar ------------- */
+
+.Cabecera {
+    position:        relative;
+    z-index:         10;
+    padding:         20px 40px;
+    border-bottom:   1px solid var(--ColorBorde);
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    background:      linear-gradient(180deg, rgba(0, 255, 204, .04) 0%, transparent 100%);
+    flex-shrink:     0;
+}
+
+.Logo {
+    font-family:    'Press Start 2P', monospace;
+    font-size:      15px;
+    color:          var(--ColorAcento);
+    text-shadow:    0 0 20px var(--ColorAcento);
+    letter-spacing: 2px;
+}
+
+.Logo span {
+    color:       var(--ColorAcento2);
+    text-shadow: 0 0 20px var(--ColorAcento2);
+}
+
+.BarraEstado {
+    display:     flex;
+    gap:         14px;
+    align-items: center;
+    max-width:   60%;
+}
+
+.PuntoEstado {
+    width:         8px;
+    height:        8px;
+    border-radius: 50%;
+    background:    var(--ColorAcento);
+    box-shadow:    0 0 8px var(--ColorAcento);
+    animation:     Pulso 2s ease-in-out infinite;
+    flex-shrink:   0;
+}
+
+@keyframes Pulso {
+    
+    0%, 100% {
+        opacity:   1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.5;
+        transform: scale(.8);
+    }
+
+}
+
+.IconoEstado {
+    font-size:   17px;
+    flex-shrink: 0;
+    display:     flex;
+    align-items: center;
+    color:       var(--ColorAcento);
+}
+
+.TextoEstado {
+    font-size:      12px;
+    color:          var(--ColorApagado);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space:    nowrap;
+    overflow:       hidden;
+    text-overflow:  ellipsis;
+}
