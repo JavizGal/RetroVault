@@ -28,6 +28,33 @@
             <span class="TextoEstado" id="TextoEstado">Listo Para Jugar</span>
         </div>
     </header>
+
+    <div class="Aplicacion">
+
+        <!------ Barra Lateral Izquierda ------->
+
+        <div class="BarraLateral">
+            <div class="EncabezadoBarraLateral">
+                <div class="TituloBarraLateral">Consolas</div>
+
+                <div class="PestañasConsola">
+                    <button class="PestañaConsola Activa" data-consola="nes">NES</button>
+                    <button class="PestañaConsola"        data-consola="ps1">PS1</button>
+                </div>
+            </div>
+
+            <div class="ListaJuegos" id="ListaJuegos"></div>
+
+            <div class="AccionesBarraLateral">
+                <button class="BotonControl Principal" id="BotonIniciar" onclick="IniciarRom()" disabled>
+                    <i class="ti ti-player-play" aria-hidden="true"></i> INICIAR
+                </button>
+                <button class="BotonControl Peligro" onclick="DetenerJuego()">
+                    <i class="ti ti-player-stop" aria-hidden="true"></i> DETENER
+                </button>
+            </div>
+        </div>
+    </div>
     
 </body>
 </html>
