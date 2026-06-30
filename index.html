@@ -7,9 +7,9 @@
     <title>Retro Vault</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+    
     <link rel="stylesheet" href="Estilos.css">
-
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
 <body>
 
@@ -43,7 +43,7 @@
                 </div>
             </div>
 
-            <div class="ListaJuegos" id="ListaJuegos"></div>
+            <div class="ListaJuegos" id="ListaJuego"></div>
 
             <div class="AccionesBarraLateral">
                 <button class="BotonControl Principal" id="BotonIniciar" onclick="IniciarRom()" disabled>
@@ -55,6 +55,40 @@
             </div>
         </div>
     </div>
-    
+
+    <!------- Area Central Del Emulador -------->
+
+    <div class="AreaEmulador">
+        <div class="EnvoltorioEmulador">
+            <div class="MarcoEmulador">
+                
+                <!----- Pantalla De Bienvenida ----->
+                
+                <div class="PantallaInicio" id="PantallaInicio">
+                    <div class="LogoInicio">INSERT COIN</div>
+                    <div class="SubtituloInicio">RetroVault v1.0</div>
+
+                    <div class="FlechaInicio">
+                        <i class="ti ti-coin" aria-hidden="true"></i>
+                        <span>ELIGE UN JUEGO PARA COMENZAR</span>
+                    </div>
+                </div>
+
+                <!------- Pantalla De Carga -------->
+
+                <div class="PantallaCarga" id="PantallaCarga">
+                    <div class="TituloCarga" id="TituloCarga">CARGANDO...</div>
+                
+                    <div class="EnvoltorioBarra">
+                        <div class="BarraCarga" id="BarraCarga"></div>
+                    </div>
+                </div>
+
+                <iframe allow="fullscreen *; autoplay *" id="IframeEmulador"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script src="Logica.js"></script>
 </body>
 </html>
