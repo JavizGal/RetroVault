@@ -314,3 +314,265 @@ body::after {
     border-color: #e63950;
     color:        #e63950;
 }
+
+
+/*---- Area Central Del Emulador -----*/
+
+.AreaEmulador {
+    display:        flex;
+    flex-direction: column;
+    background:     var(--ColorFondo);
+    overflow:       hidden;
+    height:         100%;
+}
+
+.EnvoltorioEmulador {
+    flex:            1;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    padding:         20px;
+    min-height:      0;
+    overflow:        hidden;
+}
+
+.MarcoEmulador {
+    position:     relative;
+    width:        100%;
+    max-width:    780px;
+    aspect-ratio: 4/3;
+    background:  #000;
+    border:       1px solid var(--ColorBorde);
+    box-shadow:   0 0 0 1px rgba(0, 255, 204, .1), 0 0 40px rgba(0, 0, 0, .8);
+    overflow:     hidden;
+}
+
+.MarcoEmulador::before,
+.MarcoEmulador::after {
+    content:      '';
+    position:     absolute;
+    width:        16px;
+    height:       16px;
+    border-color: var(--ColorAcento);
+    border-style: solid;
+    z-index:      5;
+}
+
+.MarcoEmulador::before {
+    top:          -1px;
+    left:         -1px;
+    border-width: 2px 0 0 2px;
+}
+
+.MarcoEmulador::after {
+    bottom:       -1px;
+    right:        -1px;
+    border-width: 0 2px 2px 0;
+}
+
+#IframeEmulador {
+    position:   absolute;
+    inset:      0;
+    width:      100%;
+    height:     100%;
+    border:     none;
+    background: #000;
+    z-index:    1;
+    display:    none;
+}
+
+#IframeEmulador.Activo {
+    display: block;
+}
+
+.PantallaInicio {
+    position:        absolute;
+    inset:           0;
+    display:         flex;
+    flex-direction:  column;
+    align-items:     center;
+    justify-content: center;
+    background:      #000;
+    z-index:         2;
+}
+
+.PantallaInicio.Oculta {
+    display: none;
+}
+
+.LogoInicio {
+    font-family:   'Press Start 2P', monospace;
+    font-size:     24px;
+    color:         var(--ColorAcento);
+    text-shadow:   0 0 30px var(--ColorAcento);
+    margin-bottom: 6px;
+    animation:     Parpadeo 4s ease-in-out infinite;
+}
+
+@keyframes Parpadeo {
+    0%, 95%, 100% {
+        opacity: 1;
+    }
+    
+    96% {
+        opacity: .8;
+    }
+    
+    97% {
+        opacity: 1;
+    }
+    
+    98% {
+        opacity: .7;
+    }
+
+    99% {
+        opacity: 1;
+    }
+}
+
+.SubtituloInicio {
+    font-family:    'Press Start 2P', monospace;
+    font-size:      7px;
+    color:          var(--ColorApagado);
+    letter-spacing: 3px;
+    margin-bottom:  40px;
+}
+
+.FlechaInicio {
+    font-size:   13px;
+    color:       var(--ColorAcento);
+    display:     flex;
+    align-items: center;
+    gap:         10px;
+    animation:   ParpadeoContinuo 1.2s step-end infinite;
+}
+
+/*- Tamaño Del Icono De La Pantalla De Inicio -*/
+
+.FlechaInicio i {
+    font-size:   18px;
+    line-height: 1;
+}
+
+@keyframes ParpadeoContinuo {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+.PantallaCarga {
+    position:        absolute;
+    inset:           0;
+    display:         none;
+    flex-direction:  column;
+    align-items:     center;
+    justify-content: center;
+    background:      #000;
+    z-index:         3;
+}
+
+.PantallaCarga.Visible {
+    display: flex;
+}
+
+.TituloCarga {
+    font-family:   'Press Start 2P', monospace;
+    font-size:     10px;
+    color:         var(--ColorAcento);
+    margin-bottom: 20px;
+    text-align:    center;
+    line-height:   1.8;
+}
+
+.EnvoltorioBarra {
+    width:      240px;
+    height:     5px;
+    background: #111;
+    border:     1px solid var(--ColorBorde);
+    overflow:   hidden;
+}
+
+.BarraCarga {
+    height:     100%;
+    background: var(--ColorAcento);
+    box-shadow: 0 0 8px var(--ColorAcento);
+    width:      0%;
+    transition: width .1s ease;
+}
+
+
+/* ------ Acciones De La Barra Lateral ------- */
+
+.AccionesBarraLateral {
+    display:        flex;
+    flex-direction: column;
+    gap:            8px;
+    padding:        14px 16px;
+    border-top:     1px solid var(--ColorBorde);
+    flex-shrink:     0;
+}
+
+.AccionesBarraLateral .BotonControl {
+    width:           100%;
+    justify-content: center;
+}
+
+.BotonControl {
+    display:        inline-flex;
+    align-items:    center;
+    gap:            7px;
+    padding:        7px 18px;
+    border:         1px solid var(--ColorBorde);
+    background:     transparent;
+    color:          var(--ColorApagado);
+    font-family:    'Rajdhani', sans-serif;
+    font-size:      12px;
+    font-weight:    700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor:         pointer;
+    transition:     all .2s;
+}
+
+
+/*--- Tamaño Del Icono Del Boton De Control ---*/
+
+.BotonControl i {
+    font-size:   16px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.BotonControl:hover {
+    border-color: var(--ColorAcento);
+    color:        var(--ColorAcento);
+    background:   rgba(0, 255, 204, .05);
+}
+
+.BotonControl.Principal {
+    border-color: var(--ColorAcento);
+    color:        var(--ColorAcento);
+    background:   rgba(0, 255, 204, .08);
+}
+
+.BotonControl.Principal:hover {
+    background: rgba(0, 255, 204, .15);
+    box-shadow: var(--EfectoBrillo);
+}
+
+.BotonControl.Principal:disabled {
+    opacity:    .35;
+    cursor:     not-allowed;
+    box-shadow: none;
+}
+
+.BotonControl.Peligro:hover {
+    border-color: var(--ColorAcento2);
+    color:        var(--ColorAcento2);
+    background:   rgba(255, 62, 136, .05);
+}
