@@ -576,3 +576,169 @@ body::after {
     color:        var(--ColorAcento2);
     background:   rgba(255, 62, 136, .05);
 }
+
+
+/*----- Barra Lateral Derecha (Controles) -----*/
+
+.BarraLateralControles {
+    border-left:    1px solid var(--ColorBorde);
+    background:     var(--ColorSuperficie);
+    display:        flex;
+    flex-direction: column;
+    overflow:       hidden;
+    height:         100%;
+}
+
+.PanelControles {
+    flex:           1;
+    overflow-y:     auto;
+    padding:        18px 16px;
+    display:        flex;
+    flex-direction: column;
+    gap:            22px;
+    min-height:     0;
+}
+
+.PanelControles::-webkit-scrollbar {
+    width: 3px;
+}
+
+.PanelControles::-webkit-scrollbar-thumb {
+    background: var(--ColorBorde);
+}
+
+.TituloGrupoControl {
+    font-size:      12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color:          var(--ColorApagado);
+    margin-bottom:  10px;
+    padding-bottom: 4px;
+    border-bottom:  1px solid var(--ColorBorde);
+}
+
+.FilasControl {
+    display:        flex;
+    flex-direction: column;
+    gap:            8px;
+}
+
+.FilaControl {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    gap:             8px;
+}
+
+.AccionControl {
+    font-size:      12px;
+    color:          var(--ColorApagado);
+    letter-spacing: .5px;
+}
+
+.TeclasControl {
+    display:     flex;
+    gap:         4px;
+    align-items: center;
+}
+
+.Tecla {
+    display:         inline-flex;
+    align-items:     center;
+    justify-content: center;
+    min-width:       22px;
+    height:          20px;
+    padding:         0 5px;
+    background:      var(--ColorTarjeta);
+    border:          1px solid var(--ColorBorde);
+    border-bottom:   2px solid #3a3a55;
+    font-size:       10px;
+    font-weight:     700;
+    color:           var(--ColorTexto);
+    letter-spacing:  .5px;
+    font-family:     'Rajdhani', sans-serif;
+}
+
+.Tecla.Acento {
+    border-color:        rgba(0, 255, 204, .4);
+    border-bottom-color: rgba(0, 255, 204, .6);
+    color:               var(--ColorAcento);
+}
+
+.SeparadorTecla {
+    font-size: 10px;
+    color:     var(--ColorApagado);
+}
+
+
+/* ------------ Pantalla Completa ------------ */
+
+.EnvoltorioEmulador:fullscreen,
+.EnvoltorioEmulador:-webkit-full-screen {
+    width:           100%;
+    height:          100%;
+    background:      #000;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+}
+
+.EnvoltorioEmulador:fullscreen .MarcoEmulador,
+.EnvoltorioEmulador:-webkit-full-screen .MarcoEmulador {
+    position:     absolute;
+    inset:        0;
+    width:        100% !important;
+    height:       100% !important;
+    max-width:    none;
+    aspect-ratio: auto;
+}
+
+.EnvoltorioEmulador:fullscreen #IframeEmulador,
+.EnvoltorioEmulador:-webkit-full-screen #IframeEmulador {
+    position: absolute;
+    inset:    0;
+    width:    100% !important;
+    height:   100% !important;
+}
+
+@media(max-width:1100px) {
+
+    .Aplicacion {
+        grid-template-columns: 250px 1fr 170px;
+    }
+
+}
+
+@media(max-width:800px) {
+
+    .Aplicacion {
+        grid-template-columns: 1fr;
+        height:                calc(100vh - 55px);
+    }
+
+    .BarraLateral {
+        max-height: 260px;
+        height:     auto;
+    }
+
+    .BarraLateralControles {
+        display: none;
+    }
+
+    .Cabecera {
+        padding: 14px 20px;
+    }
+
+    .Logo {
+        font-size: 11px;
+    }
+
+    .BarraEstado {
+        max-width: 50%;
+    }
+
+    .EnvoltorioEmulador {
+        padding: 12px;
+    }
+
+}
