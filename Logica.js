@@ -1,9 +1,9 @@
 // ---------- Mapa de Iconos Por Juego ----------
 
 var IconosPorJuego = {
-    "Pac-Mac":            "ti-circle-dotted",
-    "Super Mario Bros 3": "ti-start",
-    "Kirby's Adventures": "ti-wind",
+    "Pac-Man":            "ti-circle-dotted",
+    "Super Mario Bros 3": "ti-stars",
+    "Kirby's Adventure":  "ti-wind",
     "Crash Bandicoot":    "ti-tornado",
     "PepsiMan":           "ti-run",
     "Metal Slug X":       "ti-tank"
@@ -44,9 +44,9 @@ var JuegoSeleccionado  = null;
 var NucleoSeleccionado = "nes";
 var EtiquetasConsolas  = { nes: "NES",         ps1: "PS1" };
 
-var ClaseEtiqueta      = { nes: "EtiquetaNes", ps1: "EtiquetaPa1" };
+var ClaseEtiqueta      = { nes: "EtiquetaNes", ps1: "EtiquetaPs1" };
 var MapaNucleo         = { nes: "nes",         ps1: "psx" };
-var CarpetaRoms        = { nes: "NindendoNes", ps1: "PlayStation1" };
+var CarpetaRoms        = { nes: "NintendoNes", ps1: "PlayStation1" };
 var ExtensionesRom     = { nes: ".nes",        ps1: ".bin" };
 
 var RutasBios          = { ps1: "./bios/scph1001.bin" };
@@ -57,7 +57,7 @@ var UrlCdn             = "https://cdn.emulatorjs.org/stable/data/";
     var RecursosPrecarga = [
         { rel: "prefetch",   href: UrlCdn + "loader.js" },
         { rel: "prefetch",   href: UrlCdn + "emulator.min.js" },
-        { rel: "preconnect", href: UrlCdn + "https://cdn.emulatorjs.org" }
+        { rel: "preconnect", href: "https://cdn.emulatorjs.org" }
     ];
 
     RecursosPrecarga.forEach(function (Recurso) {
@@ -132,6 +132,209 @@ function RenderizarJuegos() {
 }
 
 
+// -- Panel De Controles Barra Lateral Derecha --
+
+function RenderizarPanelControles() {
+    
+    var ConsolaActual = FiltroActivo || "nes";
+    var CodigoHtml    = "";
+
+    var ControlesPorConsola = {
+        nes: {
+            "D-Pad": [
+                { Etiqueta: "Arriba",     Tecla: "W" },
+                { Etiqueta: "Abajo",      Tecla: "S" },
+                { Etiqueta: "Izquierda",  Tecla: "A" },
+                { Etiqueta: "Derecha",    Tecla: "D" }
+            ],
+            "Botones": [
+                { Etiqueta: "K (Botón A)", Tecla: "K" },
+                { Etiqueta: "J (Botón B)", Tecla: "J" }
+            ],
+            "Sistema": [
+                { Etiqueta: "Start", Tecla: "Enter" }
+            ]
+        },
+        ps1: {
+            "D-Pad": [
+                { Etiqueta: "Arriba",    Tecla: "W" },
+                { Etiqueta: "Abajo",     Tecla: "S" },
+                { Etiqueta: "Izquierda", Tecla: "A" },
+                { Etiqueta: "Derecha",   Tecla: "D" }
+            ],
+            "Botones": [
+                { Etiqueta: "B (X)",         Tecla: "K" },
+                { Etiqueta: "Y (Triángulo)", Tecla: "J" },
+                { Etiqueta: "A (Cuadrado)",  Tecla: "L" },
+                { Etiqueta: "X (Círculo)",   Tecla: "L" }
+            ],
+            "Sistema": [
+                { Etiqueta: "Select", Tecla: "Shift" },
+                { Etiqueta: "Start",  Tecla: "Enter" }
+            ]
+        }
+    };
+
+    var ControlesActuales = ControlesPorConsola[ConsolaActual] || ControlesPorConsola.nes;
+
+    for (var NombreGrupo in ControlesActuales) {
+        
+        CodigoHtml += '<div class="GrupoControl1">'
+                    + '<div class="TituloGrupoControl">' + NombreGrupo + '</div>'
+                    + '<div class="FilasControl">';
+
+        var ElementosGrupo = ControlesActuales[NombreGrupo];
+
+        for (var j = 0; j < ElementosGrupo.length; j++) {
+
+            var Elemento = ElementosGrupo[j];
+
+            CodigoHtml += '<div class="FilaControl">'
+                        + '<span class="AccionControl">' + Elemento.Etiqueta + '</span>'
+                        + '<div class="TeclasControl">';
+
+            if (Elemento.Tecla.indexOf("/") > -1) {
+
+                var Partes = Elemento.Tecla.split("/");
+
+                CodigoHtml += '<span class="Tecla">' + Partes[0].trim() + '</span>'
+                            + '<span class="SeparadorTecla">/</span>'
+                            + '<span class="Tecla">' + Partes[1].trim() + '</span>';
+
+            } else {
+
+                CodigoHtml += '<span class="Tecla">' + Elemento.Tecla + '</span>';
+
+            }
+
+            CodigoHtml += '</div></div>';
+
+        }
+
+        CodigoHtml += '</div></div>';
+
+    }
+
+    document.getElementById("PanelControles").innerHTML = CodigoHtml;
+
+}
+
+
+// ------ Seleccionar Un Juego De La Lista ------
+
+function SeleccionarJuego(IdJuego) {
+
+    for (var i = 0; i < ListaDeJuegos.length; i++) {
+
+        if (ListaDeJuegos[i].ID === IdJuego) {
+            
+            JuegoSeleccionado = ListaDeJuegos[i];
+            
+            break;
+
+        }
+
+    }
+
+    RenderizarJuegos();
+    ActualizarEstadoCabecera(JuegoSeleccionado.Nombre, JuegoSeleccionado.Nombre);
+
+    NucleoSeleccionado = MapaNucleo[JuegoSeleccionado.Consola] || JuegoSeleccionado.Consola;
+    document.getElementById("BotonIniciar").disabled = false;
+
+}
+
+
+// --------- Construir La URL De La Rom ---------
+
+function ConstruirUrlRom(Juego) {
+
+    var Carpeta   = CarpetaRom[Juego.Consola];
+    var Extension = ExtensionesRom[Juego.Consola];
+
+    return new URL("./" + Carpeta + "/" + encodeURIComponent(Juego.Nombre) + Extension, window.location.href).href;
+
+}
+
+function ConstruirUrlBios(NombreConsola) {
+
+    if (!RutasBios[NombreConsola]) return null;
+    
+    return new URL(RutasBios[NombreConsola], window.location.href).href;
+
+}
+
+
+// ---- Verificar Si La Pantalla Es De Movil ----
+
+function EsDispositivoMovil() {
+    return window.matchMedia("(max-width:900px)").matches;
+}
+
+
+// ---- Solicitar Pantalla Completa En Movil ----
+
+function SolicitarPantallaCompleta() {
+
+    var EnvoltorioEmulador = document.querySelector(".EnvoltorioEmulador");
+
+    if (!EnvoltorioEmulador) return;
+
+    var FnPantalla = EnvoltorioEmulador.requestFullscreen       ||
+                     EnvoltorioEmulador.webkitRequestFullscreen ||
+                     EnvoltorioEmulador.mozRequestFullScreen    ||
+                     EnvoltorioEmulador.msRequestFullscreen;
+
+    if (FnPantalla) {
+
+        try {
+
+            var Promesa = FnPantalla.call(EnvoltorioEmulador);
+
+            if (Promesa && Promesa.then) Promesa.then(BloquearPaisaje).catch(function () {});
+
+            else setTimeout(BloquearPaisaje, 100);
+
+        } catch (e) {}
+
+    }
+
+}
+
+
+function BloquearPaisaje() {
+
+    try {
+
+        if (screen.orientation && screen.orientation.lock) {
+            
+            screen.orientation.lock("landscape").catch(function () {});
+        
+        }
+
+    } catch (e) {}
+
+}
+
+
+// ------- Funcion Para Iniciar El Juego --------
+
+function IniciarJuego() {
+
+    if (!JuegoSeleccionado) {
+        
+        alert("Por favor, selecciona un juego antes de iniciar.");
+
+        return;
+
+    }
+
+    if (EsDispositivoMovil()) SolicitarPantallaCompleta();
+
+}
+
+
+
 // ------ Filtros De Pestañas De Consolas -------
 
 document.querySelectorAll(".PestañaConsola").forEach(function (Pestaña) {
@@ -148,6 +351,6 @@ document.querySelectorAll(".PestañaConsola").forEach(function (Pestaña) {
 
     });
 
-})
+});
 
 RenderizarJuegos();
