@@ -148,8 +148,8 @@ function RenderizarPanelControles() {
                 { Etiqueta: "Derecha",    Tecla: "D" }
             ],
             "Botones": [
-                { Etiqueta: "K (Botón A)", Tecla: "K" },
-                { Etiqueta: "J (Botón B)", Tecla: "J" }
+                { Etiqueta: "Botón A", Tecla: "K" },
+                { Etiqueta: "Botón B", Tecla: "J" }
             ],
             "Sistema": [
                 { Etiqueta: "Start", Tecla: "Enter" }
@@ -163,10 +163,9 @@ function RenderizarPanelControles() {
                 { Etiqueta: "Derecha",   Tecla: "D" }
             ],
             "Botones": [
-                { Etiqueta: "B (X)",         Tecla: "K" },
-                { Etiqueta: "Y (Triángulo)", Tecla: "J" },
-                { Etiqueta: "A (Cuadrado)",  Tecla: "L" },
-                { Etiqueta: "X (Círculo)",   Tecla: "L" }
+                { Etiqueta: "X",         Tecla: "K" },
+                { Etiqueta: "Cuadrado",  Tecla: "J" },
+                { Etiqueta: "Círculo",   Tecla: "L" }
             ],
             "Sistema": [
                 { Etiqueta: "Select", Tecla: "Shift" },
@@ -249,7 +248,7 @@ function SeleccionarJuego(IdJuego) {
 
 function ConstruirUrlRom(Juego) {
 
-    var Carpeta   = CarpetaRom[Juego.Consola];
+    var Carpeta   = CarpetaRoms[Juego.Consola];
     var Extension = ExtensionesRom[Juego.Consola];
 
     return new URL("./" + Carpeta + "/" + encodeURIComponent(Juego.Nombre) + Extension, window.location.href).href;
@@ -278,26 +277,39 @@ function SolicitarPantallaCompleta() {
 
     var EnvoltorioEmulador = document.querySelector(".EnvoltorioEmulador");
 
-    if (!EnvoltorioEmulador) return;
+    if (!EnvoltorioEmulador) return Promise.resolve();
 
     var FnPantalla = EnvoltorioEmulador.requestFullscreen       ||
                      EnvoltorioEmulador.webkitRequestFullscreen ||
                      EnvoltorioEmulador.mozRequestFullScreen    ||
                      EnvoltorioEmulador.msRequestFullscreen;
 
-    if (FnPantalla) {
+    if (!FnPantalla) return Promise.resolve();
+
+    return new Promise(function (Resolver) {
+
+        function TerminarYResolver() {
+            BloquearPaisaje();
+            /* Pequeño respiro extra para que el layout de fullscreen
+               termine de estabilizarse antes de montar el emulador */
+            setTimeout(Resolver, 120);
+        }
 
         try {
 
             var Promesa = FnPantalla.call(EnvoltorioEmulador);
 
-            if (Promesa && Promesa.then) Promesa.then(BloquearPaisaje).catch(function () {});
+            if (Promesa && Promesa.then) {
+                Promesa.then(TerminarYResolver).catch(TerminarYResolver);
+            } else {
+                setTimeout(TerminarYResolver, 100);
+            }
 
-            else setTimeout(BloquearPaisaje, 100);
+        } catch (e) {
+            Resolver();
+        }
 
-        } catch (e) {}
-
-    }
+    });
 
 }
 
@@ -319,7 +331,7 @@ function BloquearPaisaje() {
 
 // ------- Funcion Para Iniciar El Juego --------
 
-function IniciarJuego() {
+function IniciarRom() {
 
     if (!JuegoSeleccionado) {
         
@@ -329,10 +341,204 @@ function IniciarJuego() {
 
     }
 
-    if (EsDispositivoMovil()) SolicitarPantallaCompleta();
+    document.getElementById("PantallaInicio").classList.add("Oculta");
 
+    var PantallaCargaEl = document.getElementById("PantallaCarga");
+
+    PantallaCargaEl.classList.add("Visible");
+    
+    document.getElementById("TituloCarga").textContent = JuegoSeleccionado.Nombre.toUpperCase();
+    document.getElementById("BarraCarga").style.width = "0%";
+
+    var UrlRom       = ConstruirUrlRom(JuegoSeleccionado);
+    var UrlBios      = ConstruirUrlBios(JuegoSeleccionado.Consola);
+    var NucleoActual = NucleoSeleccionado;
+    var NombreActual = JuegoSeleccionado.Nombre;
+
+    /* En movil, esperamos a que el fullscreen realmente termine
+       ANTES de montar el emulador, para que el gamepad virtual
+       se calcule con las dimensiones correctas desde el inicio */
+    var EsperaPantallaCompleta = EsDispositivoMovil()
+        ? SolicitarPantallaCompleta()
+        : Promise.resolve();
+
+    EsperaPantallaCompleta.then(function () {
+
+        setTimeout(function () {
+            document.getElementById("BarraCarga").style.width = "80%";
+        }, 100);
+
+        requestAnimationFrame(function () {
+            document.getElementById("BarraCarga").style.width = "100%";
+
+            setTimeout(function () {
+                PantallaCargaEl.classList.remove("Visible");
+                MontarIframeNuevo(NucleoActual, UrlRom, NombreActual, UrlBios, EsDispositivoMovil());
+            }, 200);
+
+        });
+
+    });
+    
 }
 
+
+// ---- Montar El Nuevo Iframe Del Emulador -----
+
+function MontarIframeNuevo(Nucleo, UrlJuego, NombreJuego, UrlBios, EsMovil) {
+
+    var IdJuego = NombreJuego.replace(/[^a-zA-Z0-9]/g, "_");
+    var Cdn     = UrlCdn;
+
+    if ("caches" in window) {
+
+        caches.open("retrovault-roms").then(function (Cache) {
+
+            Cache.add(UrlJuego).catch(function () {});
+
+        });
+    
+    }
+
+    if ("requestIdleCallback" in window) {
+
+        requestIdleCallback(function () {
+
+            [Cdn + "emulator.min.js", Cdn + "gamepad.js"].forEach(function (Url) {
+
+                var Img = new Image();
+
+                Img.src = Url;
+
+            });
+
+        });
+
+    }
+
+    var RutasEjs = JSON.stringify({
+        "loader.js":        Cdn + "loader.js",
+        "emulator.min.js":  Cdn + "emulator.min.js",
+        "emulator.js":      Cdn + "emulator.js",
+        "emulator.min.css": Cdn + "emulator.min.css",
+        "emulator.css":     Cdn + "emulator.css",
+        "nipplejs.js":      Cdn + "nipplejs.js",
+        "shaders.js":       Cdn + "shaders.js",
+        "storage.js":       Cdn + "storage.js",
+        "gamepad.js":       Cdn + "gamepad.js",
+        "GameManager.js":   Cdn + "GameManager.js",
+        "socket.io.min.js": Cdn + "socket.io.min.js",
+        "compression.js":   Cdn + "compression.js"  
+    });
+
+    var ControlesPredeterminados = JSON.stringify({
+        0: {
+            0:  { value: "k",     value2: "BUTTON_2" },
+            1:  { value: "j",     value2: "BUTTON_4" },
+            2:  { value: "shift", value2: "SELECT" },
+            3:  { value: "enter", value2: "START" },
+            4:  { value: "w",     value2: "DPAD_UP" },
+            5:  { value: "s",     value2: "DPAD_DOWN" },
+            6:  { value: "a",     value2: "DPAD_LEFT" },
+            7:  { value: "d",     value2: "DPAD_RIGHT" },
+            8:  { value: "l",     value2: "BUTTON_1" },
+            9:  { value: "l",     value2: "BUTTON_3" },
+            10: { value: "q",     value2: "LEFT_TOP_SHOULDER" },
+            11: { value: "",      value2: "RIGHT_TOP_SHOULDER" },
+            12: { value: "",      value2: "LEFT_BOTTOM_SHOULDER" },
+            13: { value: "",      value2: "RIGHT_BOTTOM_SHOULDER" },
+            14: { value: "",      value2: "LEFT_STICK" },
+            15: { value: "",      value2: "RIGHT_STICK" },
+            24: { value: "1" }, 25: { value: "2" }, 26: { value: "3" },
+            27: { value: "add" }, 28: { value: "space" }, 29: { value: "subtract" }
+        },
+        1: {}, 2: {}, 3: {}
+    });
+
+    var PartesBios = UrlBios ? "window.EJS_biosUrl=" + JSON.stringify(UrlBios) + ";" : "";
+    var PartesModoNavegador = EsMovil ? "window.EJS_browserMode='mobile';" : "";
+
+    var ContenidoHtml = [
+        '<!DOCTYPE html><html><head><meta charset="UTF-8">',
+        '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">',
+        '<style>*{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;background:#000;overflow:hidden}#juego{width:100%;height:100%;image-rendering:pixelated;image-rendering:-moz-crisp-edges;image-rendering:crisp-edges;}</style>',
+        '</head><body><div id="juego"></div>',
+        '<scr' + 'ipt>',
+        'if(typeof requestAnimationFrame!=="undefined"){var UltimoTiempo=0;var LimiteVsync=1000/60;(function Cuadro(Tiempo){if(Tiempo-UltimoTiempo>=LimiteVsync){UltimoTiempo=Tiempo;}requestAnimationFrame(Cuadro);})();}',
+        'window.EJS_player="#juego";',
+        'window.EJS_core='         + JSON.stringify(Nucleo)      + ';',
+        'window.EJS_gameUrl='      + JSON.stringify(UrlJuego)    + ';',
+        'window.EJS_GameName='     + JSON.stringify(NombreJuego) + ';',
+        'window.EJS_gameID='       + JSON.stringify(IdJuego)     + ';',
+        'window.EJS_pathtodata='   + JSON.stringify(Cdn)         + ';',
+        'window.EJS_paths='        + RutasEjs                    + ';',
+        'window.EJS_startOnLoaded=true;',
+        'window.EJS_color="#00ffcc";',
+        'window.EJS_backgroundColor="#000000";',
+        'window.EJS_fastForwardSpeed=2;',
+        'window.EJS_throttle=60;',
+        'window.EJS_enableLogging=false;',
+        'window.EJS_VSync=false;',
+        'window.EJS_audioBufferSize=2048;',
+        'window.EJS_frameskip=-1;',
+        'window.EJS_cheats=[];',
+        'document.addEventListener("visibilitychange",function(){if(document.hidden){console.log("Pausado");}else{console.log("Reanudado");}});',
+        PartesBios,
+        PartesModoNavegador,
+        'window.EJS_defaultControls=' + ControlesPredeterminados + ';',
+        '</scr' + 'ipt>',
+        '<scr' + 'ipt src="' + Cdn + 'loader.js"></scr' + 'ipt>',
+        '</body></html>'
+    ].join("\n");
+
+    var BlobContenido = new Blob([ContenidoHtml], { type: "text/html" });
+    var UrlBlob       = URL.createObjectURL(BlobContenido);
+    var IframeNuevo   = document.createElement("iframe");
+    IframeNuevo.id    = "IframeEmulador";
+    IframeNuevo.setAttribute("allow", "fullscreen *; autoplay *");
+    IframeNuevo.className = "Activo";
+    IframeNuevo.style.cssText = "position:absolute;inset:0;width:100%;height:100%;border:none;background:#000;z-index:1;";
+    IframeNuevo.onload = function () { URL.revokeObjectURL(UrlBlob); };
+    IframeNuevo.src    = UrlBlob;
+    document.getElementById("IframeEmulador").replaceWith(IframeNuevo);
+}
+
+
+// -------------- Detener El Juego --------------
+
+function DetenerJuego() {
+
+    var IframeVacio = document.createElement("iframe");
+    IframeVacio.id  = "IframeEmulador";
+    IframeVacio.setAttribute("allow", "fullscreen *; autoplay *");
+    IframeVacio.style.cssText = "position:absolute;inset:0;width:100%;height:100%;border:none;background:#000;z-index:1;display:none;";
+
+    document.getElementById("IframeEmulador").replaceWith(IframeVacio);
+    document.getElementById("PantallaInicio").classList.remove("Oculta");
+
+    ActualizarEstadoCabecera(null, "Sistema Online");
+
+    if (document.fullscreenElement) {
+        
+        var FnSalir = document.exitFullscreen       ||
+                      document.webkitExitFullscreen ||
+                      document.mozCancelFullScreen  ||
+                      document.msExitFullscreen;
+        
+        if (FnSalir) { 
+            
+            try { 
+                FnSalir.call(document); 
+            } catch (e) {} 
+       
+        }
+    }
+
+    try {
+        if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+    } catch (e) {}
+    
+}
 
 
 // ------ Filtros De Pestañas De Consolas -------
