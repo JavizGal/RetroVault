@@ -148,8 +148,8 @@ function RenderizarPanelControles() {
                 { Etiqueta: "Derecha",    Tecla: "D" }
             ],
             "Botones": [
-                { Etiqueta: "Botón A", Tecla: "K" },
-                { Etiqueta: "Botón B", Tecla: "J" }
+                { Etiqueta: "Botón A", Tecla: "k" },
+                { Etiqueta: "Botón B", Tecla: "L" }
             ],
             "Sistema": [
                 { Etiqueta: "Start", Tecla: "Enter" }
